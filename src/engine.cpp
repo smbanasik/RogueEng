@@ -75,10 +75,10 @@ void Engine::run_engine(void) {
     while (shouldKillGame == false) {
 
         //process input
-        uteng_input::process_input(window, &user_input);
+        input_manager.process_input(window);
 
         // TEMP
-        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        if (input_manager.get_input().quit == true)
             glfwSetWindowShouldClose(window, true);
         
         // render

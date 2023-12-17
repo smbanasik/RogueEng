@@ -32,7 +32,7 @@ private:
     bool shouldKillGame;
     struct GLFWwindow* window;
     Options options;
-    uteng_input::UserInput user_input;
+    uteng_input::EngInput input_manager;
 
     // We could put these in the constructor & destructor but I don't want to.
     void init_engine(void);
