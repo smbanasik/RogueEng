@@ -3,4 +3,5 @@ Debug/
 thirdparty/
 x64/
 assets/
-.vcxproj
+*.vcxproj
+*.vcxproj.*
