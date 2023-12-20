@@ -1,9 +1,10 @@
-#include <render.hpp>
+#include <core_render.hpp>
 
 #include <iostream>
 #include <string>
 #include <vector>
 #include <memory>
+#include <stdint.h>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -14,6 +15,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <engine.hpp>
 #include <util.hpp>
 #include <shader.hpp>
 
@@ -23,6 +25,14 @@
 // We want a run_core_loop function or something similar.
 // We'll want a terminate_core_render function that handles removal of buffers
 // We'll want a some interface function that lets us submit verts to the core
+
+struct Camera {
+    float camera_speed;
+    glm::vec3 camera_position;
+    glm::vec3 camera_front;
+    glm::vec3 camera_up;
+    glm::vec3 camera_right;
+};
 
 // TODO: go back to texture page when doing renderable
 
@@ -104,6 +114,7 @@ static struct CoreVars {
     // TODO: initializing a shader class is weird right now
     std::unique_ptr<core_render::Shader> shader_base;
     std::vector<glm::vec3> cube_positions;
+    Camera camera;
     
 } core_data;
 
@@ -112,17 +123,21 @@ void load_textures(void) {
     return;
 }
 
-glm::mat4 place_camera(void) {
-
-    // TODO: allow these formulas to deal with roll, refer to deep crevice calculations
-
-    glm::vec3 camera_pos = glm::vec3(0.0f, 0.0f, 3.0f);
-    glm::vec3 camera_front = glm::vec3(0.0f, 0.0f, -1.0f);
-    glm::vec3 camera_up = glm::vec3(0.0f, 1.0f, 0.0f);
-
-    glm::mat4 view = glm::lookAt(camera_pos, camera_pos + camera_front, camera_up);
-
-    return view;
+// TODO: Temp, we'll need to use this elsewhere
+void camera_movement(const uteng::KeyState& input_keys, Camera& camera) {
+    const uint8_t KEY_W = 0, KEY_A = 1, KEY_S = 2, KEY_D = 3;
+    if (input_keys.bmap_primary_keys.get_bit(KEY_W)) {
+        camera.camera_position += camera.camera_speed * camera.camera_front;
+    }
+    if (input_keys.bmap_primary_keys.get_bit(KEY_A)) {
+        camera.camera_position -= glm::normalize(glm::cross(camera.camera_front, camera.camera_up)) * camera.camera_speed;
+    }
+    if (input_keys.bmap_primary_keys.get_bit(KEY_S)) {
+        camera.camera_position -= camera.camera_speed * camera.camera_front;
+    }
+    if (input_keys.bmap_primary_keys.get_bit(KEY_D)) {
+        camera.camera_position += glm::normalize(glm::cross(camera.camera_front, camera.camera_up)) * camera.camera_speed;
+    }
 }
 
 void core_render::init_render(void) {
@@ -251,14 +266,15 @@ void core_render::init_render(void) {
 
     // draw wireframe polygons
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-}
 
-// TODO: we probably won't need this at this rate.
-void core_render::terminate_render(void) {
+    core_data.camera.camera_speed = 0.00175;
+    core_data.camera.camera_position = glm::vec3(0.0f, 0.0f, 3.0f);
+    core_data.camera.camera_front = glm::vec3(0.0f, 0.0f, -1.0f);
+    core_data.camera.camera_up = glm::vec3(0.0f, 1.0f, 0.0f);
 }
 
 // TODO: Currently tutorial code rn
-void core_render::run_render_loop(void) {
+void core_render::run_render_loop(const uteng::KeyState& input_keys) {
 
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -271,6 +287,13 @@ void core_render::run_render_loop(void) {
     glBindTexture(GL_TEXTURE_2D, core_data.left.tex_1);
     glBindVertexArray(core_data.left.get_vao());
 
+    camera_movement(input_keys, core_data.camera);
+    glm::mat4 view = glm::lookAt(core_data.camera.camera_position, core_data.camera.camera_position + core_data.camera.camera_front,
+        core_data.camera.camera_up);
+
+    // TODO: variables with aspect ratio, calculate on screen change
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+
     // TODO: for every item in renderables, render it
     for (unsigned int i = 0; i < 10; i++) {
 
@@ -280,12 +303,6 @@ void core_render::run_render_loop(void) {
         float angle = 20.f * i;
         model = glm::rotate(model, (float)glfwGetTime() * 1.5f * glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
         //model = glm::rotate(model, (float)glfwGetTime() * 1.5f * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-        // TODO: Camera when?
-        glm::mat4 view = glm::mat4(1.0f);
-        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -5.0f)); // We translate the scene in the reverse of where we want to move.
-
-        // TODO: variables with aspect ratio, calculate on screen change
-        glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
         // TODO: It is most efficient to calculate MVP here, but if we need to separate it later on we should precalculate MVP, MV, VP, etc and send that to GPU as the shader needs them.
         glm::mat4 transform = projection * view * model;

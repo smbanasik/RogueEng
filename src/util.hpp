@@ -32,13 +32,18 @@ namespace uteng_util{
             internal_data = T;
         }
         // Return objects number of bits
-        size_t size(void) {
+        size_t size(void) const {
             return sizeof(T) * 8;
         }
         // Returns data of object
-        T data(void) {
+        T data(void) const {
             return internal_data;
         }
+
+        void clear() {
+            internal_data = 0;
+        }
+
         void set_bit(const size_t position) {
             if (position > sizeof(T) * 8)
                 throw std::out_of_range("Invalid Bitmask Position");
@@ -54,7 +59,7 @@ namespace uteng_util{
                 throw std::out_of_range("Invalid Bitmask Position");
             internal_data ^= (1 << position);
         }
-        unsigned char get_bit(const size_t position) {
+        unsigned char get_bit(const size_t position) const {
             if (position > sizeof(T) * 8)
                 throw std::out_of_range("Invalid Bitmask Position");
             return (internal_data >> position) & 1;

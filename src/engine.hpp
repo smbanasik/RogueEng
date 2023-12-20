@@ -9,7 +9,7 @@
 
 #include <string>
 
-#include <input.hpp>
+#include <util.hpp>
 
 struct GLFWwindow;
 namespace uteng {
@@ -21,6 +21,10 @@ struct Options {
     bool fullscreen;
     std::string window_name;
 };
+struct KeyState {
+    bool quit;
+    uteng_util::Bitmap<uint8_t> bmap_primary_keys; // 0000DSAW
+};
 
 class Engine {
 public:
@@ -29,13 +33,13 @@ public:
 
     void run_engine(void);
 
-    //KeyState get_input(void);
+    const KeyState& get_input(void);
 
 private:
     bool shouldKillGame;
     struct GLFWwindow* window;
     Options options;
-    uteng_input::EngInput input_manager;
+    KeyState input_keys;
 
     void process_input(void);
     // We could put these in the constructor & destructor but I don't want to.

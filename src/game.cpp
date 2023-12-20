@@ -1,6 +1,5 @@
 #include "game.hpp"
 #include "player.hpp"
-#include "render.hpp"
 
 bool run_game;
 rpg::Player main_char;

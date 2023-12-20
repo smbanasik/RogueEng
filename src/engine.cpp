@@ -6,14 +6,13 @@
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
+#include <core_render.hpp>
 #include <util.hpp>
-#include <input.hpp>
-#include <render.hpp>
 
 namespace uteng {
 
 // -- Window Functions --
-void init_window(GLFWwindow* &window, const Options &options) {
+void init_window(GLFWwindow*& window, const Options& options) {
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -63,7 +62,6 @@ void Engine::init_engine(void) {
 
 void Engine::end_engine(void) {
 
-    core_render::terminate_render();
     glfwTerminate();
 }
 
@@ -74,15 +72,14 @@ void Engine::run_engine(void) {
 
     while (shouldKillGame == false) {
 
-        //process input
-        input_manager.process_input(window);
+        process_input();
 
         // TEMP
-        if (input_manager.get_input().quit == true)
+        if (input_keys.quit == true)
             glfwSetWindowShouldClose(window, true);
-        
+
         // render
-        core_render::run_render_loop();
+        core_render::run_render_loop(input_keys);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -93,4 +90,27 @@ void Engine::run_engine(void) {
 
     end_engine();
 }
+
+
+const KeyState& Engine::get_input() {
+    return input_keys;
+}
+
+void Engine::process_input(void) {
+
+    input_keys.bmap_primary_keys.clear();
+    
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        input_keys.quit = true;
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        input_keys.bmap_primary_keys.set_bit(0);
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        input_keys.bmap_primary_keys.set_bit(1);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        input_keys.bmap_primary_keys.set_bit(2);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        input_keys.bmap_primary_keys.set_bit(3);
+
+}
+
 }
