@@ -24,7 +24,6 @@ namespace uteng_util{
     // https://stackoverflow.com/questions/8130602/using-extern-template-c11-to-avoid-instantiation
     template <class T>
     class Bitmap {
-        static_assert (std::is_arithmetic<T::value>);
     public:
         Bitmap() {
             internal_data = 0;

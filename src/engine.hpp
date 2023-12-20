@@ -28,12 +28,16 @@ public:
     Engine();
 
     void run_engine(void);
+
+    //KeyState get_input(void);
+
 private:
     bool shouldKillGame;
     struct GLFWwindow* window;
     Options options;
     uteng_input::EngInput input_manager;
 
+    void process_input(void);
     // We could put these in the constructor & destructor but I don't want to.
     void init_engine(void);
     void end_engine(void);
