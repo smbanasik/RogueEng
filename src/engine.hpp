@@ -34,13 +34,16 @@ public:
     void run_engine(void);
 
     const KeyState& get_input(void);
+    double get_delta_time(void);
 
 private:
     bool shouldKillGame;
+    double delta_time, last_frame;
     struct GLFWwindow* window;
     Options options;
     KeyState input_keys;
 
+    void calc_delta_time(void);
     void process_input(void);
     // We could put these in the constructor & destructor but I don't want to.
     void init_engine(void);

@@ -30,11 +30,14 @@ void init_window(GLFWwindow*& window, const Options& options) {
 
 Engine::Engine() {
     shouldKillGame = false;
+    delta_time = 0;
+    last_frame = 0;
     window = nullptr;
     options.screen_width = 800;
     options.screen_height = 600;
     options.fullscreen = false;
     options.window_name = "UntitledTextRPG";
+    input_keys.quit = false;
 }
 
 void Engine::init_engine(void) {
@@ -78,6 +81,8 @@ void Engine::run_engine(void) {
         if (input_keys.quit == true)
             glfwSetWindowShouldClose(window, true);
 
+        calc_delta_time();
+
         // render
         core_render::run_render_loop(input_keys);
 
@@ -111,6 +116,15 @@ void Engine::process_input(void) {
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         input_keys.bmap_primary_keys.set_bit(3);
 
+}
+
+double Engine::get_delta_time(void) {
+    return delta_time;
+}
+void Engine::calc_delta_time(void) {
+    double current_frame = glfwGetTime();
+    delta_time = current_frame - last_frame;
+    last_frame = current_frame;
 }
 
 }

@@ -125,6 +125,7 @@ void load_textures(void) {
 
 // TODO: Temp, we'll need to use this elsewhere
 void camera_movement(const uteng::KeyState& input_keys, Camera& camera) {
+    float cam_speed = camera.camera_speed * 
     const uint8_t KEY_W = 0, KEY_A = 1, KEY_S = 2, KEY_D = 3;
     if (input_keys.bmap_primary_keys.get_bit(KEY_W)) {
         camera.camera_position += camera.camera_speed * camera.camera_front;
