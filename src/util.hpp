@@ -12,7 +12,6 @@
 
 struct GLFWwindow;
 namespace uteng_util{
-    extern void framebuffer_resize_callback(GLFWwindow*, int, int);
     extern std::string read_file(const std::string& file_path);
     extern void shader_comp_err(const unsigned int shader_id);
     extern void shader_link_err(const unsigned int shader_prog_id);

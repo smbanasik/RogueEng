@@ -2,10 +2,9 @@ add_executable(utrpg
 main.cpp
 engine.hpp
 engine.cpp
-engine_types.hpp
-core_render.hpp
-core_render.cpp
+engine_render.cpp
 shader.hpp
+camera.hpp
 renderable.hpp
 renderable.cpp
 game.hpp

@@ -10,11 +10,11 @@
 #include <string>
 
 #include <util.hpp>
+#include <camera.hpp>
 
 struct GLFWwindow;
 namespace uteng {
 
-// https://en.wikipedia.org/wiki/Opaque_pointer#C++
 struct Options {
     int screen_width;
     int screen_height;
@@ -23,7 +23,7 @@ struct Options {
 };
 struct KeyState {
     bool quit;
-    uteng_util::Bitmap<uint8_t> bmap_primary_keys; // 0000DSAW
+    uteng_util::Bitmap<uint8_t> bmap_primary_keys; // 000\ALT\DSAW
 };
 
 class Engine {
@@ -37,17 +37,23 @@ public:
     double get_delta_time(void);
 
 private:
+    // TODO: back bool variables in a bitmap
     bool shouldKillGame;
+    bool mouse_enabled;
     double delta_time, last_frame;
     struct GLFWwindow* window;
     Options options;
     KeyState input_keys;
+    Camera camera;
+    glm::vec2 last_mcoords;
 
     void calc_delta_time(void);
     void process_input(void);
-    // We could put these in the constructor & destructor but I don't want to.
+
     void init_engine(void);
     void end_engine(void);
+    void init_render(void);
+    void run_render_loop(void);
 };
 
 }

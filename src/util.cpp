@@ -8,11 +8,7 @@
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
-#define UTIL_DEBUG
-
-void uteng_util::framebuffer_resize_callback(GLFWwindow* window, int n_width, int n_height) {
-    glViewport(0, 0, n_width, n_height);
-}
+#define DEBUG_UTIL
 
 std::string uteng_util::read_file(const std::string& file_path) {
 
@@ -28,7 +24,7 @@ std::string uteng_util::read_file(const std::string& file_path) {
     while (std::getline(input_file, line))
         buffer += line + "\n";
 
-    #ifdef UTIL_DEBUG
+    #ifdef DEBUG_UTIL
     std::cout << "Reading File:\n" << buffer << "\n";
     #endif
     
