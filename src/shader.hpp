@@ -14,6 +14,7 @@
 // TODO: don't like this include in a header file, maybe we can consider other options
 #include <util.hpp>
 
+// TODO: Redesign.
 namespace uteng_render {
 class Shader {
 public:

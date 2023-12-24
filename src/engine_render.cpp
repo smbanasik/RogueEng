@@ -18,10 +18,8 @@
 #include <util.hpp>
 #include <shader.hpp>
 
-// TODO: go back to texture page when doing renderable
+// TODO: Redesign shaders, most of the other stuff will be redesigned naturally as we make things work.
 
-// TODO: How do we want to handle VAOs and VBOs
-// TODO: this will need copy constructors or copy assignment.
 class BufferSet {
 public:
 

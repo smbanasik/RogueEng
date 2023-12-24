@@ -60,7 +60,6 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     uteng_vars.last_mcoords->x = static_cast<float>(xpos);
     uteng_vars.last_mcoords->y = static_cast<float>(ypos);
 
-    // TODO: print out last and offsets just to see what it's like
     uteng_vars.camera->process_mouse_movement(xoffset, yoffset);
 }
 

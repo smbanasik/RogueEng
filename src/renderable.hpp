@@ -18,10 +18,13 @@ struct Vertex {
     glm::vec3 normal;
     glm::vec2 texture_coords;
 };
+// TODO: Redesign, our texture needs an ID and type, but other things as well.
 struct Texture {
     unsigned int id;
     std::string type;
 };
+// TODO: Redesign. Our mesh should contain everything we need to create a set of buffer objects.
+// as well as the capabilities to draw these
 class Mesh {
 public:
     std::vector<Vertex> vertices;
@@ -34,11 +37,6 @@ private:
     unsigned int VBO, VAO, EBO;
 
     void setupMesh();
-};
-class Model {
-public:
-    Model(std::string path);
-    void draw(Shader& shader);
 };
 
 }

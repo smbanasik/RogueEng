@@ -10,6 +10,7 @@
 
 #include <vector>
 
+// TODO: Redesign camera
 enum CameraMovement {
     FORWARD,
     BACKWARDS,
