@@ -183,10 +183,15 @@ void Engine::process_input(void) {
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         //input_keys.bmap_primary_keys.set_bit(3);
         camera.process_keyboard(RIGHT, delta_time);
+
+    // TODO: we're going to want a key callback function so we can handle things like this.
+    // https://www.glfw.org/docs/3.3/input_guide.html#input_mouse
+    // That way it runs once per keypress instead of as fast as we do frames
     if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS) {
         //input_keys.bmap_primary_keys.set_bit(4);
         mouse_enabled = !mouse_enabled;
         // TODO: enable or disable cursor
+        // Right now, this works way too fast, we need a method of checking once.
     }
 
 }

@@ -13,7 +13,7 @@
 
 #include <shader.hpp>
 
-using namespace core_render;
+using namespace uteng_render;
 
 static constexpr unsigned int LAYOUT_POSITION = 0;
 static constexpr unsigned int LAYOUT_NORMAL = 1;
@@ -27,7 +27,21 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std:
 }
 void Mesh::draw(Shader& shader) {
 
-    glBindTexture(GL_TEXTURE_2D, textures[0].id);
+    unsigned int diffuse_number = 1;
+    unsigned int specular_number = 1;
+    for (size_t i = 0; i < textures.size(); i++) {
+        glActiveTexture(GL_TEXTURE0 + i);
+        std::string number;
+        std::string name = textures[i].type;
+        if (name == "texture_diffuse")
+            number = std::to_string(diffuse_number++);
+        else if (name == "texture_specular")
+            number = std::to_string(specular_number++);
+        
+        shader.setInt(("material." + name + number).c_str(), i);
+        glBindTexture(GL_TEXTURE_2D, textures[i].id);
+    }
+    glActiveTexture(GL_TEXTURE0);
 
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
