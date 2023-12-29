@@ -8,9 +8,13 @@
 #define UT_ENGINE_HPP
 
 #include <string>
+#include <unordered_map>
+#include <vector>
 
 #include <util.hpp>
 #include <camera.hpp>
+#include <shader.hpp>
+#include <renderable.hpp>
 
 struct GLFWwindow;
 namespace uteng {
@@ -23,7 +27,7 @@ struct Options {
 };
 struct KeyState {
     bool quit;
-    uteng_util::Bitmap<uint8_t> bmap_primary_keys; // 000\ALT\DSAW
+    uint8_t bmap_primary_keys; // 0000DSAW
 };
 
 class Engine {
@@ -34,18 +38,26 @@ public:
     void run_engine(void);
 
     const KeyState& get_input(void);
-    double get_delta_time(void);
+    float get_delta_time(void);
 
 private:
     // TODO: back bool variables in a bitmap
     bool shouldKillGame;
     bool mouse_enabled;
-    double delta_time, last_frame;
+    double last_frame;
+    float delta_time;
+    
     struct GLFWwindow* window;
     Options options;
     KeyState input_keys;
     Camera camera;
     glm::vec2 last_mcoords;
+
+    std::vector<uteng_render::Sprite> dynamic_renderables; // Can fall off screen, attached to world
+    std::vector<uteng_render::Sprite> static_renderables; // Always on screen, attached to camera
+
+    std::unordered_map<std::string, uteng_render::ShaderProgram> shader_pool;
+    std::unordered_map<std::string, uteng_render::Texture>       texture_pool;
 
     void calc_delta_time(void);
     void process_input(void);

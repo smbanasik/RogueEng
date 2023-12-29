@@ -10,107 +10,66 @@
 
 #include <vector>
 
-// TODO: Redesign camera
+#include <util.hpp>
+
+#include <iostream>
+
 enum CameraMovement {
-    FORWARD,
-    BACKWARDS,
-    LEFT,
-    RIGHT,
     UP,
+    LEFT,
     DOWN,
-    ROLL_LEFT,
-    ROLL_RIGHT
+    RIGHT,
 };
 
-// TODO: convert these into variables
-const float YAW = -90.f;
-const float PITCH = 0.0f;
+
 const float SPEED = 2.5f;
-const float SENSITIVITY = 0.1f;
-const float ZOOM = 45.0f;
+const glm::vec2 ASPECT_RATIO = { 4.0f, 3.0f };
 
 struct Camera {
 public:
     glm::vec3 position;
-    glm::vec3 front;
     glm::vec3 up;
-    glm::vec3 right;
-    glm::vec3 world_up;
-    float yaw, pitch;
-    float movement_speed, mouse_sensitivity, zoom;
+    glm::vec2 ortho_size;
+    float movement_speed;
     
-    Camera(glm::vec3 position = glm::vec3(0.0f,0.0f,0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
-        float yaw = YAW, float pitch = PITCH) : front(glm::vec3(0.0f, 0.0f, -1.0f)), movement_speed(SPEED),
-        mouse_sensitivity(SENSITIVITY), zoom(ZOOM) {
+    Camera(glm::vec3 position = glm::vec3(0.0f,0.0f,1.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f))
+        : movement_speed(SPEED), ortho_size(ASPECT_RATIO) {
         this->position = position;
-        this->world_up = up;
-        this->yaw = yaw;
-        this->pitch = pitch;
-        update_camera_vectors();
+        this->up = up;
     }
-    // Optional todo: constructor with scalar values
 
     glm::mat4 get_view_matrix() {
-        return glm::lookAt(position, position + front, up);
+        return glm::lookAt(position, glm::vec3(position.x, position.y, 0.0f), up);
     }
 
-    void process_keyboard(CameraMovement direction, float delta_time) {
+    void process_keyboard(uint8_t direction , float delta_time) {
         float velocity = movement_speed * delta_time;
-        if (direction == FORWARD)
-            position += front * velocity;
-        if (direction == BACKWARDS)
-            position -= front * velocity;
-        if (direction == LEFT)
-            position -= right * velocity;
-        if (direction == RIGHT)
-            position += right * velocity;
-        if (direction == UP)
-            position += up * velocity;
-        if (direction == DOWN)
-            position -= up * velocity;
-        // TODO: roll right and left
-    }
-
-    void process_mouse_movement(float xoffset, float yoffset, GLboolean constrain_pitch = true) {
-        xoffset *= mouse_sensitivity;
-        yoffset *= mouse_sensitivity;
-
-        yaw += xoffset;
-        pitch += yoffset;
-
-        if (yaw > 360)
-            yaw -= 360;
-        if (yaw < 0)
-            yaw += 360;
-
-        if (constrain_pitch) {
-            if (pitch > 89.0f)
-                pitch = 89.0f;
-            if (pitch < -89.0f)
-                pitch = -89.0f;
-        }
-        update_camera_vectors();
+        glm::vec2 direction_vec{ 0, 0 };
+        if (uteng_util::get_bit<uint8_t>(direction, UP) == true)
+            direction_vec.y += 1;
+        if (uteng_util::get_bit<uint8_t>(direction, DOWN) == true)
+            direction_vec.y -= 1;
+        if (uteng_util::get_bit<uint8_t>(direction, LEFT) == true)
+            direction_vec.x -= 1;
+        if (uteng_util::get_bit<uint8_t>(direction, RIGHT) == true)
+            direction_vec.x += 1;
+        
+        direction_vec = glm::normalize(direction_vec) * velocity;
+        position.x += direction_vec.x;
+        position.y += direction_vec.y;
     }
 
     void process_mouse_scroll(float yoffset) {
-        zoom -= static_cast<float>(yoffset);
-        if (zoom < 1.0f)
-            zoom = 1.0f;
-        if (zoom > 45.0f)
-            zoom = 45.0f;
+        ortho_size.x -= yoffset;
+        ortho_size.y -= yoffset;
+
+        if (ortho_size.x < 4)
+            ortho_size.x = 4;
+        if (ortho_size.y < 3)
+            ortho_size.y = 3;
     }
 
 private:
-    void update_camera_vectors() {
-        // TODO: handle roll
-        front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-        front.y = sin(glm::radians(pitch));
-        front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-        front = glm::normalize(front);
-        right = glm::normalize(glm::cross(front, world_up)); // TODO: utilize deep crevice to remove us from world up
-        up = glm::normalize(glm::cross(right, front));
-    }
-
 };
 
 

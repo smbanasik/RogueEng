@@ -60,7 +60,6 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     uteng_vars.last_mcoords->x = static_cast<float>(xpos);
     uteng_vars.last_mcoords->y = static_cast<float>(ypos);
 
-    uteng_vars.camera->process_mouse_movement(xoffset, yoffset);
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
@@ -75,9 +74,8 @@ void framebuffer_resize_callback(GLFWwindow* window, int n_width, int n_height) 
 
 // -- Class Functions --
 
-Engine::Engine() : camera(glm::vec3(0.0f, 0.0f, 3.0f)) {
+Engine::Engine() : camera(glm::vec3(0.0f, 0.0f, 1.0f)) {
     shouldKillGame = false;
-    mouse_enabled = false;
     delta_time = 0;
     last_frame = 0;
     window = nullptr;
@@ -104,8 +102,6 @@ void Engine::init_engine(void) {
     if (!init_window(window, options)) {
         goto eng_init_error;
     }
-
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glfwSetFramebufferSizeCallback(window, framebuffer_resize_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
@@ -166,41 +162,31 @@ const KeyState& Engine::get_input() {
 
 void Engine::process_input(void) {
 
-    input_keys.bmap_primary_keys.clear();
+    input_keys.bmap_primary_keys = 0;
     
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         input_keys.quit = true;
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        //input_keys.bmap_primary_keys.set_bit(0);
-        camera.process_keyboard(FORWARD, delta_time);
+        input_keys.bmap_primary_keys = uteng_util::set_bit<uint8_t>(input_keys.bmap_primary_keys, 0);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        //input_keys.bmap_primary_keys.set_bit(1);
-        camera.process_keyboard(LEFT, delta_time);
+        input_keys.bmap_primary_keys = uteng_util::set_bit<uint8_t>(input_keys.bmap_primary_keys, 1);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        //input_keys.bmap_primary_keys.set_bit(2);
-        camera.process_keyboard(BACKWARDS, delta_time);
+        input_keys.bmap_primary_keys = uteng_util::set_bit<uint8_t>(input_keys.bmap_primary_keys, 2);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        //input_keys.bmap_primary_keys.set_bit(3);
-        camera.process_keyboard(RIGHT, delta_time);
+        input_keys.bmap_primary_keys = uteng_util::set_bit<uint8_t>(input_keys.bmap_primary_keys, 3);
 
-    // TODO: we're going to want a key callback function so we can handle things like this.
-    // https://www.glfw.org/docs/3.3/input_guide.html#input_mouse
-    // That way it runs once per keypress instead of as fast as we do frames
-    if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS) {
-        //input_keys.bmap_primary_keys.set_bit(4);
-        mouse_enabled = !mouse_enabled;
-        // TODO: enable or disable cursor
-        // Right now, this works way too fast, we need a method of checking once.
-    }
+    //std::cout << "bmap: " << std::to_string(input_keys.bmap_primary_keys) << "\n";
+    if (input_keys.bmap_primary_keys)
+        camera.process_keyboard(input_keys.bmap_primary_keys, delta_time);
 
 }
 
-double Engine::get_delta_time(void) {
+float Engine::get_delta_time(void) {
     return delta_time;
 }
 void Engine::calc_delta_time(void) {
     double current_frame = glfwGetTime();
-    delta_time = current_frame - last_frame;
+    delta_time = static_cast<float>(current_frame - last_frame);
     last_frame = current_frame;
 }
 

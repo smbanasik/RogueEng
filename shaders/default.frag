@@ -19,9 +19,8 @@ struct PointLight {
     float constant;
     float linear;
     float quadratic;
-}
+};
 #define NR_POINT_LIGHTS 4
-
 
 out vec4 FragColor;
 
