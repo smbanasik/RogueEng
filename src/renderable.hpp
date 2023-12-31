@@ -17,44 +17,62 @@ namespace uteng_render {
 class ShaderProgram;
 struct Vertex {
     glm::vec3 position;
-    glm::vec3 color; // Unused for now
+    glm::vec3 color_keys;
     glm::vec2 texture_coords;
 };
-typedef unsigned int Texture; // Unsigned int for now, but here in case we need to add more.
+enum TextureType {
+    PALETTE,
+    NORMAL,
+};
+struct Texture {
+    unsigned int id;
+    TextureType type;
+    float texture_size;
+    float grid_size;
+};
 
-// TODO: will work for now but we will need to adjust this when I'm optimizing this
+// TODO: CONST REF
 class Sprite {
 public:
+    Sprite(ShaderProgram* shader, Texture* texture) : botleft_pos(0.0f), dimensions(0.0f), palette_colors(1.0f), atlas_coords(0), shader(shader), texture(texture) {};
+    Sprite(glm::vec2 botleft, glm::vec2 dimensions, glm::vec3 palette, glm::ivec2 atlas, ShaderProgram* shader, Texture* texture)
+         : botleft_pos(botleft), dimensions(dimensions), palette_colors(palette), atlas_coords(atlas), shader(shader), texture(texture) {};
+    glm::vec2 botleft_pos;
+    glm::vec2 dimensions;
+    glm::vec3 palette_colors;
+    glm::ivec2 atlas_coords;
+    uteng_render::ShaderProgram * shader;
+    uteng_render::Texture * texture;
+};
+// TODO: CONST REF
+class Model {
+public:
 
-    Sprite(glm::vec2 position, glm::vec2 dimensions, Texture texture, glm::ivec2 atlas_coords);
-    ~Sprite();
-    Sprite(const Sprite& other);
-    Sprite& operator=(const Sprite& other);
-    Sprite(Sprite&& other) noexcept;
-    Sprite& operator=(Sprite&& other) noexcept;
-
-    void draw(ShaderProgram& shader);
-
-    void translate(glm::vec3 translation);
-    void scale(glm::vec3 transformation);
-    void rotate(glm::vec3 transformation, float angle);
-    void reset_model_matrix();
+    Model(const std::vector<Sprite>& sprites, Texture* palette);
+    ~Model();
+    Model(const Model& other);
+    Model& operator=(const Model& other);
+    Model(Model&& other) noexcept;
+    Model& operator=(Model&& other) noexcept;
 
     void set_color(glm::vec3 color);
+    void prepare_sprites();
+    void draw(glm::mat4 transform);
 
-    glm::mat4 get_model_matrix();
-
+    std::vector<Sprite> sprites;
 private:
     unsigned int VBO, VAO, EBO;
-    unsigned int* ref_count_vao, *ref_count_vebo;
-    glm::vec3 color;
-    glm::mat4 model_matrix;
-    Texture texture;
+    unsigned int* ref_count;
+    glm::vec3 uni_color;
+    Texture* palette;
 
-    std::array<Vertex, 8> verts;
-    std::array<unsigned int, 12> indices;
+    std::vector<Vertex> vertices;
+    std::vector<unsigned int> indices;
 
-    void initialize_sprite();
+    std::vector<Texture*> sprite_textures;
+    std::vector<ShaderProgram*> sprite_shaders;
+
+    void bind_buffer();
 };
 
 // TODO: cpp of this once we figure out how sprites work better

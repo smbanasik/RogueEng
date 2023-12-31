@@ -53,8 +53,8 @@ private:
     Camera camera;
     glm::vec2 last_mcoords;
 
-    std::vector<uteng_render::Sprite> dynamic_renderables; // Can fall off screen, attached to world
-    std::vector<uteng_render::Sprite> static_renderables; // Always on screen, attached to camera
+    std::vector<uteng_render::Model> dynamic_renderables; // Can fall off screen, attached to world
+    std::vector<uteng_render::Model> static_renderables; // Always on screen, attached to camera
 
     std::unordered_map<std::string, uteng_render::ShaderProgram> shader_pool;
     std::unordered_map<std::string, uteng_render::Texture>       texture_pool;
