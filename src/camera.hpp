@@ -32,7 +32,7 @@ public:
     glm::vec2 ortho_size;
     float movement_speed;
     
-    Camera(glm::vec3 position = glm::vec3(0.0f,0.0f,1.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f))
+    Camera(const glm::vec3& position = glm::vec3(0.0f,0.0f,1.0f), const glm::vec3& up = glm::vec3(0.0f, 1.0f, 0.0f))
         : movement_speed(SPEED), ortho_size(ASPECT_RATIO) {
         this->position = position;
         this->up = up;

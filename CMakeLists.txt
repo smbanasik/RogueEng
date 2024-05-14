@@ -23,5 +23,5 @@ file(GLOB ASSET_SOURCE_FILES
 file(COPY ${SHADER_SOURCE_FILES} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/shaders)
 file(COPY ${ASSET_SOURCE_FILES} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/assets)
 
-# Look into configure_file
-# configure_file(TutorialConfig.h.in TutorialConfig.h)
+# TODO: find out how to copy .dlls into exe
+# https://stackoverflow.com/questions/10671916/how-to-copy-dll-files-into-the-same-folder-as-the-executable-using-cmake

@@ -125,11 +125,11 @@ public:
         return *this;
     }
 
-    void use() {
+    void use() const {
         glUseProgram(id);
     }
 
-    unsigned int get_id() {
+    unsigned int get_id() const {
         return id;
     }
 
@@ -145,7 +145,7 @@ public:
     void set_vec3(const std::string& name, glm::vec3 value) const {
         glUniform3fv(get_uniform(name), 1, glm::value_ptr(value));
     }
-    void set_vec3(const std::string& name, float val1, float val2, float val3) {
+    void set_vec3(const std::string& name, float val1, float val2, float val3) const {
         glUniform3f(get_uniform(name), val1, val2, val3);
     }
     void set_mat3(const std::string& name, glm::mat3 value) const {

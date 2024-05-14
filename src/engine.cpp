@@ -5,6 +5,8 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 #include <util.hpp>
 
@@ -17,9 +19,9 @@ namespace uteng {
 // Am I going to make the member variables public? no.
 // You get a static (this file only) anonymous structure that contains these pointers.
 static struct {
-    Options* options; // For screen resizing
-    Camera* camera; // For mouse callback
-    glm::vec2* last_mcoords; // For mouse callback
+    Options* options = nullptr; // For screen resizing
+    Camera* camera = nullptr; // For mouse callback
+    glm::vec2* last_mcoords = nullptr; // For mouse callback
 } uteng_vars;
 
 
@@ -86,6 +88,8 @@ Engine::Engine() : camera(glm::vec3(0.0f, 0.0f, 1.0f)) {
     input_keys.quit = false;
     last_mcoords.x = options.screen_width / 2.0f;
     last_mcoords.y = options.screen_height / 2.0f;
+    mouse_enabled = true;
+    ft = nullptr;
 
     // The variables
     uteng_vars.camera = &camera;
@@ -103,6 +107,10 @@ void Engine::init_engine(void) {
         goto eng_init_error;
     }
 
+    if (FT_Init_FreeType(&ft)) {
+        goto eng_init_error;
+    }
+
     glfwSetFramebufferSizeCallback(window, framebuffer_resize_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
@@ -113,6 +121,8 @@ void Engine::init_engine(void) {
     }
 
     glViewport(0, 0, options.screen_width, options.screen_height);
+
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     init_render();
     return;
@@ -125,8 +135,8 @@ eng_init_error:
 void Engine::end_engine(void) {
 
     glfwTerminate();
+    FT_Done_FreeType(ft);
 }
-
 
 void Engine::run_engine(void) {
 
@@ -138,16 +148,17 @@ void Engine::run_engine(void) {
 
         process_input();
 
-        // TEMP
         if (input_keys.quit == true)
             glfwSetWindowShouldClose(window, true);
+
+        // decide what gets rendered and what needs to be discarded
 
         // render
         run_render_loop();
 
         glfwSwapBuffers(window);
+
         glfwPollEvents();
-        // ENDTEMP
 
         shouldKillGame = glfwWindowShouldClose(window);
     }
