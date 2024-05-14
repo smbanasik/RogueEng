@@ -3,5 +3,7 @@ Debug/
 thirdparty/
 x64/
 assets/
+shaders/
+Attributions.md
 *.vcxproj
 *.vcxproj.*
