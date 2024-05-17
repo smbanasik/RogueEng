@@ -314,14 +314,14 @@ void Model::bind_buffer() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), &indices[0], GL_STATIC_DRAW);
 
-    glEnableVertexAttribArray(LAYOUT_POSITION);
     glVertexAttribPointer(LAYOUT_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)POSITION_OFFSET);
+    glEnableVertexAttribArray(LAYOUT_POSITION);
 
-    glEnableVertexAttribArray(LAYOUT_COLOR);
     glVertexAttribPointer(LAYOUT_COLOR, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(COLOR_OFFSET * sizeof(float)));
+    glEnableVertexAttribArray(LAYOUT_COLOR);
 
-    glEnableVertexAttribArray(LAYOUT_TEXTURE);
     glVertexAttribPointer(LAYOUT_TEXTURE, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(TEXTURE_OFFSET * sizeof(float)));
+    glEnableVertexAttribArray(LAYOUT_TEXTURE);
 
     glBindVertexArray(0);
 }

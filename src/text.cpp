@@ -72,29 +72,16 @@ void TextManager::initialize(const FT_Library* ft, const std::string& font_path,
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
 
-    // Loaed Buffers with our temporary data
-    float verts[] = {-1.f,-1.f, 0.0f, 1.0f,
-                      1.f,-1.f, 1.0f, 1.0f,
-                     -1.f, 1.f, 0.0f, 0.0f,
-                     -1.f, 1.f, 0.0f, 0.0f,
-                      1.f,-1.f, 1.0f, 1.0f,
-                      1.f, 1.f, 1.0f, 0.0f };
-    glBindVertexArray(vao);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    glBindVertexArray(0);
-
     // Initialize our FT_Face
     init_fonts(starter_font);
 
     // Fill starter_font_text
     convert_font_texture(starter_font);
+
+    //bind_buffer();
+
+    // Render a starter_block
+    render_text("WHOOP WHOOP WE GOT IT", { 150.0f, 150.0f });
 }
 
 bool TextManager::init_fonts(FT_Face& font) {
@@ -123,11 +110,10 @@ void TextManager::convert_font_texture(FT_Face& font) {
             max_height = font->glyph->bitmap.rows;
     }
 
-    std::cout << total_width << " " << max_height << "\n";
-
-    //FT_Load_Char(font, 'B', FT_LOAD_RENDER);
-
+    
     starter_font_tex.texture_width = total_width;
+    starter_font_tex.texture_height = max_height;
+
     glGenTextures(1, &starter_font_tex.texture);
     glBindTexture(GL_TEXTURE_2D, starter_font_tex.texture);
     //glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, font->glyph->bitmap.width, font->glyph->bitmap.rows, 0, GL_RED, GL_UNSIGNED_BYTE, font->glyph->bitmap.buffer);
@@ -142,7 +128,7 @@ void TextManager::convert_font_texture(FT_Face& font) {
     for (unsigned char c = 0; c < 128; c++) {
         FT_Load_Char(font, c, FT_LOAD_RENDER);
 
-        starter_font_tex.ascii[c].origin = { total_width / starter_font_tex.texture_width, 0.0f };
+        starter_font_tex.ascii[c].tex_pos = { (1.0 * current_width) / total_width, 0.0f};
         starter_font_tex.ascii[c].size = { font->glyph->bitmap.width, font->glyph->bitmap.rows };
         starter_font_tex.ascii[c].padding = { font->glyph->bitmap_left, font->glyph->bitmap_top, font->glyph->advance.x};
 
@@ -156,17 +142,47 @@ void TextManager::convert_font_texture(FT_Face& font) {
 }
 
 // Not the same as a draw function! Instead, assemble a text block into using a draw function
-void TextManager::render_Text(const std::string& text, const glm::vec2& position, float scale, const glm::vec3& color) {
+void TextManager::render_text(const std::string& text, const glm::vec2& position, float scale, const glm::vec3& color) {
 
-    // TODO: to start, given text and a starting position, use a font
-    // and create an array of vertices (and texture coords) for 
+    TextBlock text_data;
+    text_data.color = color;
+    text_data.scale = scale;
 
+    float x = position.x;
+    for (auto it = text.begin(); it != text.end(); it++) {
+
+        Character c = starter_font_tex.ascii[*it];
+
+        float xpos = x + c.padding.x;
+        float ypos = position.y - (c.size.y - c.padding.y);
+
+        float width = c.size.x;
+        float height = c.size.y;
+        float atlas_width = width / starter_font_tex.texture_width;
+        float atlas_height = height / starter_font_tex.texture_height;
+        
+        text_data.verts.insert(text_data.verts.end(),
+            {
+            xpos,         ypos,          c.tex_pos.x,               atlas_height,
+            xpos + width, ypos,          c.tex_pos.x + atlas_width, atlas_height,
+            xpos,         ypos + height, c.tex_pos.x,               0.0f,
+            xpos,         ypos + height, c.tex_pos.x,               0.0f,
+            xpos + width, ypos,          c.tex_pos.x + atlas_width, atlas_height,
+            xpos + width, ypos + height, c.tex_pos.x + atlas_width, 0.0f
+            }
+        );
+       x  += (c.padding.z >> 6);
+    }
+
+    starter_block = text_data;
+
+    bind_buffer();
 }
 
 void TextManager::draw(const glm::mat4& transform) {
 
     shader_ptr->use();
-    //shader_ptr->set_mat4("transform", transform);
+    shader_ptr->set_mat4("transform", transform);
     shader_ptr->set_int("textu", 0);
     //shader_ptr->set_vec3("text_color", { 1.0f, 1.0f, 1.0f });
 
@@ -174,10 +190,9 @@ void TextManager::draw(const glm::mat4& transform) {
     glBindTexture(GL_TEXTURE_2D, starter_font_tex.texture);
 
     glBindVertexArray(vao);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDrawArrays(GL_TRIANGLES, 0, starter_block.verts.size());
     glBindVertexArray(0);
 
-    // TODO: for now, print out a square with the texture of our font.
 
     /*
     for (auto it = rendered_text.begin(); it != rendered_text.end(); it++) {
@@ -191,4 +206,20 @@ void TextManager::draw(const glm::mat4& transform) {
 
         // TODO: draw everything in our text queue
     }*/
+}
+
+void TextManager::bind_buffer() {
+
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    //glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * VERT_SIZE * starter_block.verts.size(), &starter_block.verts[0], GL_STATIC_DRAW);
+
+    glVertexAttribPointer(LAYOUT_POS, 2, GL_FLOAT, GL_FALSE, sizeof(float) * VERT_SIZE, (void*)OFFSET_POS);
+    glEnableVertexAttribArray(LAYOUT_POS);
+
+    glVertexAttribPointer(LAYOUT_TEX, 2, GL_FLOAT, GL_FALSE, sizeof(float) * VERT_SIZE, (void*)(OFFSET_TEX * sizeof(float)));
+    glEnableVertexAttribArray(LAYOUT_TEX);
+
+    glBindVertexArray(0);
 }

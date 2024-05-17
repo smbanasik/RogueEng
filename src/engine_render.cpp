@@ -137,8 +137,9 @@ void uteng::Engine::run_render_loop() {
 
     }
 
-    // TEMP CODE
-    text_manager.draw(proj_view);
+    // 800 x 600 - Screen dimensions
+    proj = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.0f, 10.0f);
+    text_manager.draw(proj);
 
 }
 

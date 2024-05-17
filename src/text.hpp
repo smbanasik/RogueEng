@@ -15,6 +15,12 @@
 
 #include <shader.hpp>
 
+// BIG TODO LIST:
+// - Get things thing scalable. A system for adding and removing texts.
+// - Different fonts, different colors, different sizes and scales.
+// - \n in a text should cause a newline to occur!
+// - \t in a text should cause a tab to occur if it doesn't already!
+
 namespace uteng_render {
 
 // What does the textmanager do:
@@ -36,23 +42,24 @@ namespace uteng_render {
 // Contains necessary information to transpose a font into vertices.
 // https://learnopengl.com/img/in-practice/glyph.png
 struct Character {
-    glm::vec2 origin; // X and Y for character, normalized
+    glm::vec2 tex_pos; // X and Y for character, normalized
     glm::ivec2 size;  // width and height
     glm::ivec3 padding; // left, top, and right offsets
 };
 // Contains the texture atlas of a font and the character information
 struct Font {
-    unsigned int texture = 0;
-    unsigned int texture_width = 0;
+    unsigned int texture;
+    unsigned int texture_width;
+    unsigned int texture_height;
     std::array<Character, 128> ascii; // TODO: change into something like a map, char to Character
 };
-// Useless?
-struct CharVerts {
-    glm::vec2 position, texture_coords;
+// Data related to a text block
+struct TextBlock {
+    unsigned int id;
+    float scale;
+    glm::vec3 color;
+    std::vector<float> verts;
 };
-// TODO: we need a struct that's an actual text block. Something that can hold the data of all of the verts, colors, and so on.
-
-typedef std::vector<CharVerts> TextBlock; // TODO: id system with vectors
 // TODO: add capabilities for multiple fonts
 class TextManager {
 public:
@@ -69,7 +76,7 @@ public:
     // TODO: allow for font selection
     // TODO: allow for multi color text
     // Given text, a position on screen, and text details -> prepare text to be rendered on the creen
-    void render_Text(const std::string& text, const glm::vec2& position, float scale, const glm::vec3& color = { 0.0f, 0.0f, 0.0f });
+    void render_text(const std::string& text, const glm::vec2& position, float scale = 1.0, const glm::vec3& color = { 1.0f, 1.0f, 1.0f });
 
     void draw(const glm::mat4& transform);
 
@@ -77,14 +84,22 @@ public:
 
 private:
 
+    static constexpr unsigned int VERT_SIZE = 4;
+    static constexpr unsigned int LAYOUT_POS = 0;
+    static constexpr unsigned int LAYOUT_TEX = 1;
+    static constexpr unsigned int OFFSET_POS = 0;
+    static constexpr unsigned int OFFSET_TEX = 2;
+
     bool init_fonts(FT_Face& font); // TODO: configure fonts useds
     void add_text_draw() {}; // TODO: For every bit of data processed by render text, add it to what's drawn
     void convert_font_texture(FT_Face& font); // Given a face/font, convert it to a texture, then free the font
+    void bind_buffer();
 
     unsigned int vao, vbo;
     const FT_Library* ft;
     FT_Face starter_font;
     Font starter_font_tex;
+    TextBlock starter_block;
     const ShaderProgram* shader_ptr;
 
     std::vector<TextBlock> rendered_text;
