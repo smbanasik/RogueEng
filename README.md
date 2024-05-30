@@ -9,27 +9,17 @@ still providing the developer with technical control of underlying systems, allo
 
 ## Progress
 
-[X] Sprite Rendering - Completed sometime in January
-
-[X] Text Rendering - Completed in May
-
-[ ] Low-Level Render Interface
-
-[ ] High-Level Render Interface
-
-[ ] Window Class
-
-[ ] Button Class
-
-[ ] Proper Mouse and Keyboard Support
-
-[ ] Integration of SB Lib's Dynamic Pool
-
-[ ] Rewrite of text and low-level render interfaces
-
-[ ] Sound
-
-[ ] Attributions for third party uses
+- [X] Sprite Rendering - Completed sometime in January
+- [X] Text Rendering - Completed in May
+- [ ] Low-Level Render Interface
+- [ ] High-Level Render Interface
+- [ ] Window Class
+- [ ] Button Class
+- [ ] Proper Mouse and Keyboard Support
+- [ ] Integration of SB Lib's Dynamic Pool
+- [ ] Rewrite of text and low-level render interfaces
+- [ ] Sound
+- [ ] Attributions for third party uses
 
 ## Design
 
