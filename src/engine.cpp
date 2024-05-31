@@ -140,6 +140,7 @@ void Engine::end_engine(void) {
 
 void Engine::run_engine(void) {
 
+    // TODO: move init to constructor.
     init_engine();
 
     while (shouldKillGame == false) {
@@ -163,6 +164,7 @@ void Engine::run_engine(void) {
         shouldKillGame = glfwWindowShouldClose(window);
     }
 
+    // TODO: move to destructor
     end_engine();
 }
 

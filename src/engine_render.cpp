@@ -95,7 +95,18 @@ void uteng::Engine::init_render(void) {
     load_shaders();
 
     // Set up text manager here!
-    text_manager.initialize(&ft, "lol", &shader_pool.at("text"));
+    text_manager.initialize(&ft, &shader_pool.at("text"));
+    text_manager.add_font("arial", "../assets/fonts/arial.ttf");
+    text_manager.set_text_font("arial");
+    text_manager.set_text_position({ 400, 300 });
+    text_manager.render_text("It's happening");
+    //
+    //text_manager.set_text_position({ 200, 200 });
+    //text_manager.render_text("It's still happening");
+    //
+    //text_manager.set_text_position({ 0, 50 });
+    //text_manager.set_text_color({ 0.0f, 0.5f, 1.0f });
+    //text_manager.render_text("WOOP");
 
     stbi_set_flip_vertically_on_load(true);
 
@@ -128,12 +139,12 @@ void uteng::Engine::run_render_loop() {
 
     for (auto it = dynamic_renderables.begin(); it != dynamic_renderables.end(); it++) {
         
-        //it->draw(proj_view);
+        it->draw(proj_view);
 
     }
     for (auto it = static_renderables.begin(); it != static_renderables.end(); it++) {
 
-        //it->draw(proj_view);
+        it->draw(proj_view);
 
     }
 

@@ -7,6 +7,8 @@ shader.hpp
 camera.hpp
 text.hpp
 text.cpp
+render_manager.hpp
+render_manager.cpp
 renderable.hpp
 renderable.cpp
 game.hpp

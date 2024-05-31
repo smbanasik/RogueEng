@@ -8,6 +8,8 @@
 #include <string>
 #include <array>
 #include <vector>
+#include <deque>
+#include <unordered_map>
 
 #include <glm/glm.hpp>
 #include <ft2build.h>
@@ -16,10 +18,12 @@
 #include <shader.hpp>
 
 // BIG TODO LIST:
-// - Get things thing scalable. A system for adding and removing texts.
+// - Develop a system to assemble and bind *sometimes* rather than constantly, reduce calls
 // - Different fonts, different colors, different sizes and scales.
 // - \n in a text should cause a newline to occur!
 // - \t in a text should cause a tab to occur if it doesn't already!
+// - Rule of 3/5/0
+// - Look for an alternative to an init function
 
 namespace uteng_render {
 
@@ -51,58 +55,107 @@ struct Font {
     unsigned int texture;
     unsigned int texture_width;
     unsigned int texture_height;
-    std::array<Character, 128> ascii; // TODO: change into something like a map, char to Character
+    std::array<Character, 128> ascii; // TODO: change this to something scalable?
 };
 // Data related to a text block
 struct TextBlock {
-    unsigned int id;
-    float scale;
-    glm::vec3 color;
-    std::vector<float> verts;
+    unsigned int vert_id;
+    std::string font_word;
 };
-// TODO: add capabilities for multiple fonts
+typedef std::deque<TextBlock>::const_iterator TextBlockRef;
 class TextManager {
 public:
 
     TextManager();
-    // TODO: I'd like to make these available when calling the constructor, but I'm afraid that to do that 
-    // I'll need to have the Engine class have a pointer
-    //TextManager(const FT_Library* ft, const std::string& font_path, const ShaderProgram* shader);
     ~TextManager();
 
-    // Horrible, temporary, replace with a copy and an assignment constructor.
-    void initialize(const FT_Library* ft, const std::string& font_path, const ShaderProgram* shader);
+    void initialize(const FT_Library* ft, const ShaderProgram* shader);
 
-    // TODO: allow for font selection
-    // TODO: allow for multi color text
-    // Given text, a position on screen, and text details -> prepare text to be rendered on the creen
-    void render_text(const std::string& text, const glm::vec2& position, float scale = 1.0, const glm::vec3& color = { 1.0f, 1.0f, 1.0f });
+    // Add a font, the keyword is used to access the font later.
+    void add_font(const std::string& keyword, const std::string& font_path, const unsigned int pix_size = 48);
 
+    void switch_selected_textBox(TextBlockRef block);
+    void switch_selected_textBox_relToSel(const int offset, const bool forwards = true);
+    void switch_selected_textBox_relToEnd(const int offset = 0);
+
+    void remove_selected_textBox();
+    void remove_relToSel(const int offset, const bool forwards = true);
+    void remove_relToEnd(const int offset = 0);
+
+    // TODO: pipeline
+    // Format data
+    // Render text (assembles it)
+    // Set bind flag
+    // If bind flag true, bind
+    // draw
+
+    // Set the color of future text blocks
+    void set_text_color(const glm::vec3& text_color);
+    // Set the position of future text blocks
+    void set_text_position(const glm::ivec2& position);
+    // Set the font of future text blocks
+    void set_text_font(const std::string& keyword);
+    // Set the scale of future text blocks
+    void set_text_scale(const float scale);
+
+    // Render text according to the set data, returns a reference to the generate block
+    TextBlockRef render_text(const std::string& text);
+
+    // Replace the selected text block according to the set data and new text
+    void replace_text(const std::string& new_text);
+
+    // Change the selected text block according to the set data
+    //void modify_text(TextBlockRef text_block);
+    
+    // For every TextBlock, draw it.
     void draw(const glm::mat4& transform);
-
-    void remove_last_text(const int offset = 0) {};
 
 private:
 
-    static constexpr unsigned int VERT_SIZE = 4;
+    static constexpr unsigned int VERT_SIZE = 7;
     static constexpr unsigned int LAYOUT_POS = 0;
     static constexpr unsigned int LAYOUT_TEX = 1;
+    static constexpr unsigned int LAYOUT_COL = 2;
     static constexpr unsigned int OFFSET_POS = 0;
     static constexpr unsigned int OFFSET_TEX = 2;
+    static constexpr unsigned int OFFSET_COL = 4;
 
-    bool init_fonts(FT_Face& font); // TODO: configure fonts useds
-    void add_text_draw() {}; // TODO: For every bit of data processed by render text, add it to what's drawn
-    void convert_font_texture(FT_Face& font); // Given a face/font, convert it to a texture, then free the font
+    TextManager(const TextManager& other) = delete;
+    TextManager& operator=(const TextManager& other) = delete;
+    TextManager(TextManager&& other) noexcept = delete;
+    TextManager& operator=(TextManager&& other) noexcept = delete;
+
+    // Initialize a font
+    bool init_font(FT_Face& font, const std::string& font_path, unsigned int pix_size = 48);
+    // Assemble the selected TextBlock into vertices
+    void selected_textBlock_assemble(const std::string& text);
+    //void handle_newLine();
+    //void handle_tab();
+    // TODO: allow for text codes to give specific text colors.
+    
+    // Given a face, convert it into our texture atlas
+    void convert_font_texture(const std::string& key_word, FT_Face& font);
+    // Bind our data to buffers
     void bind_buffer();
+    std::deque<TextBlock>::iterator clear_textBlock(std::deque<TextBlock>::iterator& remove);
 
-    unsigned int vao, vbo;
+    unsigned int vao, vbo, ebo;
+    bool bind_flag;
     const FT_Library* ft;
-    FT_Face starter_font;
-    Font starter_font_tex;
-    TextBlock starter_block;
     const ShaderProgram* shader_ptr;
-
-    std::vector<TextBlock> rendered_text;
+    struct {
+        float scale;
+        glm::vec3 color;
+        glm::ivec2 position;
+        std::string font_keyword;
+    } sel_block_data;
+    std::deque<TextBlock>::iterator selected_block;
+    std::unordered_map<std::string, Font> font_pool;
+    std::deque<TextBlock> rendered_text;
+    // TODO: in an ideal world, this would be flattened,
+    // but I *refuse* to go through that trouble right now.
+    std::vector<std::vector<float>> verts;
+    unsigned int temp_size;
 };
 }
 #endif
