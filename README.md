@@ -24,3 +24,9 @@ still providing the developer with technical control of underlying systems, allo
 ## Design
 
 ## Build Instructions
+
+Need to discuss:
+OpenGL
+GLFW
+GLM
+FreeType
