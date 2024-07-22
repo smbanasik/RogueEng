@@ -1,9 +1,16 @@
 build/*
 Debug/*
-thirdparty/*
 x64/*
 assets/*
 shaders/*
+
+thirdparty/freetype/*
+thirdparty/glad/*
+thirdparty/glfw-3.3.8/*
+thirdparty/glm_lib/*
+stb_image/*
+
+// Work in progress
 Attributions.md
 
 !thirdparty/CMakeLists.txt
