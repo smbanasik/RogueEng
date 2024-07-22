@@ -8,13 +8,13 @@ thirdparty/freetype/*
 thirdparty/glad/*
 thirdparty/glfw-3.3.8/*
 thirdparty/glm_lib/*
-stb_image/*
-
-// Work in progress
-Attributions.md
+thirdparty/stb_image/*
 
 !thirdparty/CMakeLists.txt
 !thirdparty/glad/CMakeLists.txt
 
 *.vcxproj
 *.vcxproj.*
+
+// Work in progress
+Attributions.md
