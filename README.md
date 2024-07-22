@@ -25,8 +25,10 @@ still providing the developer with technical control of underlying systems, allo
 
 ## Build Instructions
 
-Need to discuss:
-OpenGL
-GLFW
+### Third Party addons
+
+Freetype
+Glad
+GLFW-3.38
 GLM
-FreeType
+STB Image
