@@ -1,3 +1,7 @@
+# Archival
+I have moved my development to GarFish Engine. While this has been an informative project, I've decided to start from scratch with a focus on utilizing less tutorial code, git from the beginning, better documentation of my processess and setup, and finally more thought into the design of the engine.
+
+
 # RogueEng
 This is RogueEng, a game engine written in C++ which uses OpenGL as it's rendering platform.
 
